@@ -1,7 +1,8 @@
 # PPDS
-This repository is used for assignments for the school subject PPDS in the 
-school year 2021/2022. Weekly assignments will be separated into the single branches
-named by week of the course.
+#Thread assignment
+This branch is used for first week assignments where I am working with threads.
+
+
 
 **License: MIT\
 Author: Matúš Kanda\
