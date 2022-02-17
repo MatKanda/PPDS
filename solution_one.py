@@ -1,5 +1,9 @@
 from collections import Counter
 from fei.ppds import Thread
+import threading
+
+
+lock = threading.Lock()
 
 
 class Shared:
@@ -11,8 +15,10 @@ class Shared:
 
 def do_count(shared):
     while shared.counter != shared.end:
+        lock.acquire()
         shared.elms[shared.counter] += 1
         shared.counter += 1
+        lock.release()
 
 
 def execution_one():
