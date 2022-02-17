@@ -16,10 +16,10 @@ class Shared:
 # incrementing every index of given array using locks because of multi threads
 def do_count(shared):
     while shared.counter != shared.end:
-        # this if statement is used to ensure not to access array out of his range
-        if shared.counter == shared.end - 1:
-            break
         lock.acquire()
+        # this if statement is used to ensure not to access array out of his range
+        if shared.counter >= shared.end:
+            break
         shared.elms[shared.counter] += 1
         shared.counter += 1
         lock.release()
