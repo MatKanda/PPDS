@@ -23,7 +23,7 @@ def do_count(shared):
         shared.counter += 1
 
 
-# joined block of code for easier function call from main class in other file
+# joined block of code for easier function call from main class in another file
 def execution_three():
     shared = Shared(1_000_000)
     t1 = Thread(do_count, shared)

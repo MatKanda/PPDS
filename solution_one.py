@@ -25,7 +25,7 @@ def do_count(shared):
         lock.release()
 
 
-# joined block of code for easier function call from main class in other file
+# joined block of code for easier function call from main class in another file
 def execution_one():
     shared = Shared(1_000_000)
     t1 = Thread(do_count, shared)
