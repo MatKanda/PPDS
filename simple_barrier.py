@@ -1,4 +1,4 @@
-from fei.ppds import Thread, Semaphore, Mutex, print
+from fei.ppds import Thread, Semaphore, Mutex, print, Event
 
 
 class SimpleBarrier:
@@ -6,16 +6,16 @@ class SimpleBarrier:
         self.n = n
         self.counter = 0
         self.mutex = Mutex()
-        self.semaphore = Semaphore(0)
+        self.event = Event()
 
     def wait(self):
         self.mutex.lock()
         self.counter += 1
         if self.counter == self. n:
             self.counter = 0
-            self.semaphore.signal(self.n)
+            self.event.set()
         self.mutex.unlock()
-        self.semaphore.wait()
+        self.event.wait()
 
 
 def barrier_example(barrier, thread_id):
@@ -26,8 +26,8 @@ def barrier_example(barrier, thread_id):
 
 def execute_code():
     # priklad pouzitia ADT SimpleBarrier
-    sb = SimpleBarrier(5)
-    THREADS = 5
+    THREADS = 15
+    sb = SimpleBarrier(THREADS)
     barrier = SimpleBarrier(THREADS)
     threads = [Thread(barrier_example, barrier, i) for i in range(THREADS)]
     [t.join() for t in threads]
