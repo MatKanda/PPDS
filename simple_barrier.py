@@ -25,9 +25,7 @@ def barrier_example(barrier, thread_id):
 
 
 def execute_code():
-    # priklad pouzitia ADT SimpleBarrier
     THREADS = 15
-    sb = SimpleBarrier(THREADS)
     barrier = SimpleBarrier(THREADS)
     threads = [Thread(barrier_example, barrier, i) for i in range(THREADS)]
     [t.join() for t in threads]
