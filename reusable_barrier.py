@@ -1,5 +1,3 @@
-from time import sleep
-from random import randint
 from fei.ppds import Thread, Mutex, Event
 from fei.ppds import print
 
@@ -20,6 +18,9 @@ class Barrier:
         self.mutex.unlock()
         self.event.wait()
 
+    def clear(self):
+        self.event.clear()
+
 
 def rendezvous(thread_name):
     print('rendezvous: %s' % thread_name)
@@ -31,8 +32,10 @@ def ko(thread_name):
 
 def barrier_example(barrier1, barrier2, thread_name):
     while True:
+        barrier1.clear()
         rendezvous(thread_name)
         barrier1.wait()
+        barrier2.clear()
         ko(thread_name)
         barrier2.wait()
 
