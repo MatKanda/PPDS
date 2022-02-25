@@ -143,6 +143,4 @@ def execute_code():
         t.join()
 
 
-for j in range(20):
-    execute_code()
-    print("---------------------------------")
+execute_code()
