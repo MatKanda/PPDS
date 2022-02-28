@@ -36,9 +36,15 @@ entered the ```computation``` function.  Then **increment** counter
 which represents current acceptable thread and call the function recursively
 again. You can choose between ```Semaphore``` and ```Event``` in the
 initialization because u will create generic object ```Synchronization```
-which can work with both. I'm pretty sure that this is not ideal solution
+which can work with both.\
+I used **1** ```mutex``` and **1**
+```Synchronization``` object like ```Semaphore```
+or ```Event``` inside my ```Class```.
+I'm pretty sure that this is not ideal solution
 and not even close as effective as it probably can be, but I didn't
 come with anything better and this solution does the job.
+
+
 
 **License: MIT\
 Author: Matúš Kanda\
