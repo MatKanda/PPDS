@@ -52,7 +52,7 @@ def producer(shared, buffer):
         # simulate load an item to the warehouse
         shared.current_load += 1
         buffer.append(shared.current_load)
-        sleep(randint(1, 10)/100)
+        sleep(randint(1, 10)/10)
         # leave the warehouse
         shared.mutex.unlock()
         # increase items in warehouse
@@ -85,7 +85,7 @@ def consumer(shared, buffer):
         # simulate getting an item from the warehouse
         shared.current_load -= 1
         buffer.append(shared.current_load)
-        sleep(randint(1, 10)/100)
+        sleep(randint(1, 10)/10)
         # leave warehouse
         shared.mutex.unlock()
         # process the item picked from warehouse
@@ -101,21 +101,22 @@ def main():
     for i in range(10):
         buffer = []
         s = Shared(10)
-        c = [Thread(consumer, s, buffer) for _ in range(2)]
-        p = [Thread(producer, s, buffer) for _ in range(10)]
 
-    sleep(5)
-    s.finished = True
-    print("Thread waits")
-    s.items.signal(100)
-    s.free.signal(100)
-    [t.join() for t in c+p]
-    print("Thread finished")
-    print(buffer)
+        c = [Thread(consumer, s, buffer) for _ in range(20)]
+        p = [Thread(producer, s, buffer) for _ in range(5)]
+
+        sleep(5)
+        s.finished = True
+        print("Thread waits")
+        s.items.signal(100)
+        s.free.signal(100)
+        [t.join() for t in c+p]
+        print("Thread finished")
+        print(buffer)
 
         plt.hist(buffer, bins=25)
         plt.ylabel("Warehouse fulfillment at each point of execution")
-        plt.xlabel(f"2 consumers, 10 producers - run {i}")
+        plt.xlabel(f"20 consumers, 5 producers - run {i}")
         plt.show()
 
 
