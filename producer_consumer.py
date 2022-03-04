@@ -5,6 +5,18 @@ import matplotlib.pyplot as plt
 
 
 class Shared(object):
+    """
+    Shared class shared between threads.
+
+    Attributes
+    ----------
+    n: number of threads\n
+    finished: boolean value if the execution has finished\n
+    mutex: Mutex class used to lock/unlock\n
+    free: Semaphore class representing how much free space is left\n
+    items: Semaphore class representing number of items\n
+    current_load: sum of currently stored items in a warehouse
+    """
     def __init__(self, n):
         self.finished = False
         self.mutex = Mutex()
@@ -14,6 +26,21 @@ class Shared(object):
 
 
 def producer(shared, buffer):
+    """
+    Function representing producer adding items to warehouse
+
+    Parameters
+    ----------
+    shared: shared sync object (Shared)\n
+    buffer: buffer used for saving experimental data
+
+    Return value
+    ------------
+    None
+
+    :param shared: shared sync object -> Shared
+    :param buffer: buffer used for saving experimental data
+    """
     while True:
         sleep(randint(1, 10)/10)
         # check free space in the warehouse
@@ -33,6 +60,21 @@ def producer(shared, buffer):
 
 
 def consumer(shared, buffer):
+    """
+    Function representing consumer picking items from warehouse
+
+    Parameters
+    ----------
+    shared: shared sync object (Shared)\n
+    buffer: buffer used for saving experimental data
+
+    Return value
+    ------------
+    None
+
+    :param shared: shared sync object -> Shared
+    :param buffer: buffer used for saving experimental data
+    """
     while True:
         # check warehouse resources
         shared.items.wait()
@@ -51,10 +93,16 @@ def consumer(shared, buffer):
 
 
 def main():
-    buffer = []
-    s = Shared(10)
-    c = [Thread(consumer, s, buffer) for _ in range(2)]
-    p = [Thread(producer, s, buffer) for _ in range(10)]
+    """
+    Main function used for execution of code.
+
+    :return: None
+    """
+    for i in range(10):
+        buffer = []
+        s = Shared(10)
+        c = [Thread(consumer, s, buffer) for _ in range(2)]
+        p = [Thread(producer, s, buffer) for _ in range(10)]
 
     sleep(5)
     s.finished = True
@@ -65,10 +113,10 @@ def main():
     print("Thread finished")
     print(buffer)
 
-    # plt.plot(buffer)
-    # plt.ylabel('Current warehouse load')
-    # plt.axes.get_xaxis().set_visible(False)
-    # plt.show()
+        plt.hist(buffer, bins=25)
+        plt.ylabel("Warehouse fulfillment at each point of execution")
+        plt.xlabel(f"2 consumers, 10 producers - run {i}")
+        plt.show()
 
 
 if __name__ == "__main__":
