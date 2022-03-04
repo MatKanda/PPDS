@@ -7,45 +7,51 @@ class LightSwitch(object):
     def __init__(self):
         self.counter = 0
         self.mutex = Mutex()
-        self.room = Semaphore(1)
 
-    def lock(self):
+    def lock(self, room):
         self.mutex.lock()
         if not self.counter:
-            self.room.wait()
+            room.wait()
         self.counter += 1
         self.mutex.unlock()
 
-    def unlock(self):
+    def unlock(self, room):
         self.mutex.lock()
         self.counter -= 1
         if not self.counter:
-            self.room.signal()
+            room.signal()
         self.mutex.unlock()
 
 
-def reader(light_switch):
+def reader(light_switch, room, turnstile):
     while True:
-        light_switch.lock()
+        turnstile.wait()
+        turnstile.signal()
+        light_switch.lock(room)
         sleep(randint(1, 10)/10)
         print("Reader is reading")
-        light_switch.unlock()
+        light_switch.unlock(room)
 
 
-def writer(light_switch):
+def writer(room, turnstile):
     while True:
-        light_switch.room.wait()
+        turnstile.wait()
+        room.wait()
         sleep(randint(1, 10)/100)
         print("Writer is writing")
-        light_switch.room.signal()
+        room.signal()
+        turnstile.signal()
 
 
 def main():
-    room = LightSwitch()
-    w = [Thread(writer, room)]
-    r = [Thread(reader, room) for _ in range(10)]
+    turnstile = Semaphore(1)
+    room = Semaphore(1)
+    switch = LightSwitch()
+    r = [Thread(reader, switch, room, turnstile) for _ in range(10)]
+    w = Thread(writer, room, turnstile)
 
-    [t.join() for t in w+r]
+    [t.join() for t in r]
+    w.join()
 
 
 if __name__ == "__main__":
