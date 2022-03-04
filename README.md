@@ -1,7 +1,9 @@
-# PPDS
-This repository is used for assignments for the school subject PPDS in the 
-school year 2021/2022. Weekly assignments will be separated into the single branches
-named by week of the course.
+# ADT Lightswitch
+This branch is used for third week assignments where 
+I am working with ADT Lightswitch, Producer-Consumer and 
+Reader-Writer solutions.
+
+
 
 **License: MIT\
 Author: Matúš Kanda\
