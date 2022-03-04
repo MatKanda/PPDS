@@ -18,11 +18,11 @@ This solution is in ```producer_consumer.py``` file.
 It's kind of similar like previous task, but this time 
 we are simulating consumers consuming something and producers
 taking it from the warehouse. We were creating some "experiments"
-to observer it's behaviour.\
+to observe its behaviour.\
 \
 For example the image below is an example (one of many images) of 
 10 runs of the case where consumer threads are created before 
-producer's threads. We had**2** consumers and **10** producers. 
+producer's threads. We had **2** consumers and **10** producers. 
 We saw that the warehouse fulfillment has never reached **0** and
 the maximum value reached **5**
 
@@ -36,7 +36,7 @@ almost the whole time.
 ![Scutter graph](img/2C_10P_ep2.png)
 
 Now we can try to switch the number of producers and consumers.
-For example we can make only 5 producers and 20 consumers. Producers
+For example we can only make **5** producers and **20** consumers. Producers
 are created first and consumers after that. We can observe that the
 consumer's threads had to wait for producers to produce the items. We
 can see big wholes in our graph, because consumers were waiting and then
@@ -45,15 +45,15 @@ took everything from the warehouse.
 ![Scutter graph](img/20C_5P_ep1.png)
 
 Let's switch the order of initialization and watch if anything changes
-We can say that id didn't have any significant impact of the result 
+We can say that it didn't have any significant impact on the results 
 compared to the previous one.
 
 ![Scutter graph](img/20C_5P_ep2.png)
 
 What about change of the execution time of producing/consuming?
 Let's prolong the production time. Now the production and consumption
-have the same time of execution. We are again using 20 consumers
-and 5 producers. We can see there are still holes in our graph, but
+have the same time of execution. We are again using **20** consumers
+and **5** producers. We can see there are still holes in our graph, but
 the values are significantly more even than in previous one.
 
 ![Scutter graph](img/20C_5P_ep3.png)
