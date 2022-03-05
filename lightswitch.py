@@ -1,3 +1,11 @@
+"""
+ADT LightSwitch.
+
+This script is made as an example of implementation and usage
+of lightswitch synchronization.
+
+It requires "fei.ppds", "time" and "random" imports.
+"""
 from fei.ppds import Thread, Mutex, Semaphore, print
 from time import sleep
 from random import randint

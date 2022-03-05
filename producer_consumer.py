@@ -1,3 +1,11 @@
+"""
+Producer/Consumer.
+
+This script is made as an example of implementation and usage
+of producer/consumer synchronization problem.
+
+It requires "fei.ppds", "time", "random" and "matplotlib" imports.
+"""
 from fei.ppds import Thread, Mutex, Semaphore, print
 from time import sleep
 from random import randint
