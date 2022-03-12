@@ -1,14 +1,48 @@
+"""
+Nuclear power #1.
+
+This is an example task from previous years tests. It's using
+some sync techniques like lightswitch or barrier.
+
+It requires "fei.ppds", "time" and "random" imports.
+"""
 from fei.ppds import Mutex, Semaphore, Thread, Event, print
 from time import sleep
 from random import randint
 
 
 class Lightswitch:
+    """
+    LightSwitch class shared between threads.
+    Attributes
+    ----------
+    mutex: Mutex class used to lock/unlock
+    counter: counter for number of threads that reached certain point of execution
+    """
     def __init__(self):
+        """
+        Initialisation of LightSwitch class.
+        """
         self.mutex = Mutex()
         self.counter = 0
 
     def lock(self, semaphore):
+        """
+        Lock method used to increment counter variable and return current
+        count at the same time.
+
+        Parameters:
+        ----------
+        semaphore: sync object Semaphore
+
+        :param semaphore: sync object Semaphore
+
+        Return value
+        ------------
+        counter: current counter value before incrementation
+
+        :return counter: current counter value before incrementation
+        """
         self.mutex.lock()
         counter = self.counter
         self.counter += 1
@@ -18,6 +52,20 @@ class Lightswitch:
         return counter
 
     def unlock(self, semaphore):
+        """
+         Unlock method used to decrement counter variable and return current
+         count at the same time.
+
+         Parameters:
+         ----------
+         semaphore: sync object Semaphore
+
+         :param semaphore: sync object Semaphore
+
+         Return value
+         ------------
+         None
+         """
         self.mutex.lock()
         self.counter -= 1
         if self.counter == 0:
@@ -26,6 +74,13 @@ class Lightswitch:
 
 
 def init():
+    """
+    Initialization function for testing purposes. Called by main() function.
+
+    Return value
+    ------------
+    None
+    """
     access_data = Semaphore(1)
     turnstile = Semaphore(1)
     ls_monitor = Lightswitch()
@@ -39,6 +94,27 @@ def init():
 
 
 def monitor(monitor_id, valid_data, turnstile, ls_monitor, access_data):
+    """
+    Function simulating a monitoring some data that are being changed by other functions.
+
+    Parameters
+    ----------
+    monitor_id: id of the current monitor
+    valid_data: Event sync object
+    turnstile: Semaphore sync object
+    ls_monitor: LightSwitch class defined above
+    access_data:Semaphore sync object
+
+    :param monitor_id: id of the current monitor
+    :param valid_data: Event sync object
+    :param turnstile: Semaphore sync object
+    :param ls_monitor: LightSwitch class defined above
+    :param access_data:Semaphore sync object
+
+    Return value
+    ------------
+    None
+    """
     valid_data.wait()
 
     while True:
@@ -51,6 +127,27 @@ def monitor(monitor_id, valid_data, turnstile, ls_monitor, access_data):
 
 
 def sensor(sensor_id, turnstile, ls_sensor, valid_data, access_data):
+    """
+    Function simulating the sensors updating/rewriting some data
+
+    Parameters
+    ----------
+    sensor_id: id of the current sensor
+    valid_data: Event sync object
+    turnstile: Semaphore sync object
+    ls_sensor: LightSwitch class defined above
+    access_data:Semaphore sync object
+
+    :param sensor_id: id of the current sensor
+    :param valid_data: Event sync object
+    :param turnstile: Semaphore sync object
+    :param ls_sensor: LightSwitch class defined above
+    :param access_data:Semaphore sync object
+
+    Return value
+    ------------
+    None
+    """
     while True:
         turnstile.wait()
         turnstile.signal()
