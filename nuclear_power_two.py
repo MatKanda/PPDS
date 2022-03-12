@@ -85,13 +85,13 @@ def init():
     turnstile = Semaphore(1)
     ls_monitor = Lightswitch()
     ls_sensor = Lightswitch()
-    valid_data = Event()
+    valid_data = [Event(), Event(), Event()]
 
     for monitor_id in range(8):
         Thread(monitor, monitor_id, valid_data, turnstile, ls_monitor, access_data)
 
-    Thread(sensor_p_t, "P", turnstile, ls_sensor, valid_data, access_data)
-    Thread(sensor_p_t, "T", turnstile, ls_sensor, valid_data, access_data)
+    Thread(sensor_p, "P", turnstile, ls_sensor, valid_data, access_data)
+    Thread(sensor_t, "T", turnstile, ls_sensor, valid_data, access_data)
     Thread(sensor_h, "H", turnstile, ls_sensor, valid_data, access_data)
 
 
@@ -117,7 +117,10 @@ def monitor(monitor_id, valid_data, turnstile, ls_monitor, access_data):
     ------------
     None
     """
-    valid_data.wait()
+
+    # wait for the every sensor to write the data before reading
+    for data in valid_data:
+        data.wait()
 
     while True:
         turnstile.wait()
@@ -129,7 +132,7 @@ def monitor(monitor_id, valid_data, turnstile, ls_monitor, access_data):
         ls_monitor.unlock(access_data)
 
 
-def sensor_p_t(sensor_id, turnstile, ls_sensor, valid_data, access_data):
+def sensor_p(sensor_id, turnstile, ls_sensor, valid_data, access_data):
     """
     Function simulating the sensor "P" updating/rewriting some data
 
@@ -159,7 +162,7 @@ def sensor_p_t(sensor_id, turnstile, ls_sensor, valid_data, access_data):
         write_time = randint(10, 20)/1000
         print(f'cidlo "{sensor_id}": pocet_zapisujucich_cidiel={writing_sensors}, trvanie_zapisu={write_time}\n')
         sleep(write_time)
-        valid_data.signal()
+        valid_data[0].signal()
         ls_sensor.unlock(access_data)
 
 
@@ -193,7 +196,7 @@ def sensor_h(sensor_id, turnstile, ls_sensor, valid_data, access_data):
         write_time = randint(20, 25) / 1000
         print(f'cidlo "{sensor_id}": pocet_zapisujucich_cidiel={writing_sensors}, trvanie_zapisu={write_time}\n')
         sleep(write_time)
-        valid_data.signal()
+        valid_data[2].signal()
         ls_sensor.unlock(access_data)
 
 
