@@ -68,10 +68,7 @@ def put_forks(forks, p_id, hand):
 def main():
     forks = [Semaphore(1) for _ in range(PHILOSOPHERS)]
 
-    # random number of left-handed philosophers, at least 1, max all-1
-    left_handed = randint(1, PHILOSOPHERS-1)
-
-    create_philosophers(forks, left_handed)
+    create_philosophers(forks)
 
 
 if __name__ == "__main__":
