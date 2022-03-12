@@ -1,14 +1,16 @@
-# Nuclear Power
+# Nuclear Power & Philosophers
 This branch is used for fourth week assignments where I am working on previous years
 assignments. In this task I had to combine more synchronization ```Objects``` such as 
 ```Event()``` or ```Semaphore()```  and  synchronization ```methods``` like ```turnstile```
-or ```Lightswitch```. \
+or ```Lightswitch```.\
 \
 My work here was to create the ```nuclear_power_two.py``` solution, because of our dear 
 professor **Mr. Jokay** who showed us and explained first task ```nuclear_power_one.py```.
 Because of that I'm going to concentrate on the **second** solution in this documentation
 file. Those solutions ar similar, but it needed some adjustments which I'm going to explain
-down below.
+down below.\
+\
+I've done **Philosophers** task as well, where I had to create left/right-handed solution.
 
 ## Three sensors
 In this case I had to create **three** sensors of **two** types. The first one is type 
@@ -98,6 +100,22 @@ def sensor_t(sensor_id, turnstile, ls_sensor, valid_data, access_data):
         "signal()" for this sensor type
         sensor's lightswitch unlock
 ``` 
+
+## Philosophers
+The point of this task was to ensure that multiple philosophers can eat at the same time,
+so I had to ensure that they pick the forks from the table only when the forks are available.
+The forks is ```list``` of ```Semaphores``` where value **0** means fork is being used
+and is not available and value **1** means fork is available on the table. I had to generate
+random number representing number of left-handed philosophers. I decided to put it in
+```<1,all-1>``` range. This means that there will be at least **1** left-handed philosopher
+which is **crucial** for this sync problem solution. At the same time, ```all-1``` means
+there won't be only left-handed philosophers, because then this **right/left-handed** solution
+wouldn't make any sense. It would be the same situation as if there were only right-handed
+philosophers.\
+\
+After the number generation I needed to add decision-making ```if/else``` into the
+```put``` and ```get``` forks functions. It will decide which fork (left or right) will
+get/put first and which one second, based on the ```hand``` parameter.
 
 **License: MIT\
 Author: Matúš Kanda\
