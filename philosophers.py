@@ -16,7 +16,25 @@ from random import randint
 PHILOSOPHERS = 5
 
 
-def create_philosophers(forks, left_handed):
+def create_philosophers(forks):
+    """
+    Function that creates philosophers based on the generated random number. It runs the threads as well to execute
+    functions defined down below.
+
+    Parameters
+    ----------
+    forks: List of Semaphores initialized to 1 representing forks
+
+    Return value
+    ------------
+    None
+
+    :param forks: List of Semaphores initialized to 1 representing forks
+    """
+
+    # random number of left-handed philosophers, at least 1, max all-1
+    left_handed = randint(1, PHILOSOPHERS-1)
+
     phils_l = [Thread(philosopher, forks, p_id, "left") for p_id in range(0, left_handed)]
     phils_r = [Thread(philosopher, forks, p_id, "right") for p_id in range(left_handed, PHILOSOPHERS)]
 
@@ -25,6 +43,23 @@ def create_philosophers(forks, left_handed):
 
 
 def philosopher(forks, p_id, hand):
+    """
+    Function representing philosopher who thinks, takes the forks, eats and then put the forks back.
+
+    Parameters
+    ----------
+    forks: List of Semaphores initialized to 1 representing forks
+    p_id: id of current philosopher
+    hand: determines whether the philosopher is left or right-handed
+
+    Return value
+    ------------
+    None
+
+    :param forks: List of Semaphores initialized to 1 representing forks
+    :param p_id: id of current philosopher
+    :param hand: determines whether the philosopher is left or right-handed
+    """
     sleep(randint(50, 100) / 1000)
 
     while True:
@@ -35,16 +70,59 @@ def philosopher(forks, p_id, hand):
 
 
 def think(p_id):
+    """
+    Function simulating thinking philosopher.
+
+    Parameters
+    ----------
+    p_id: id of current philosopher
+
+    Return value
+    ------------
+    None
+
+    :param p_id: id of current philosopher
+    """
     print(f"{p_id} is thinking")
     sleep(randint(30, 40) / 1000)
 
 
 def eat(p_id):
+    """
+    Function simulating eating philosopher.
+
+    Parameters
+    ----------
+    p_id: id of current philosopher
+
+    Return value
+    ------------
+    None
+
+    :param p_id: id of current philosopher
+    """
     print(f"{p_id} is eating")
     sleep(randint(30, 40) / 1000)
 
 
 def get_forks(forks, p_id, hand):
+    """
+    Function simulating getting forks from the table.
+
+    Parameters
+    ----------
+    forks: List of Semaphores initialized to 1 representing forks
+    p_id: id of current philosopher
+    hand: determines whether the philosopher is left or right-handed
+
+    Return value
+    ------------
+    None
+
+    :param forks: List of Semaphores initialized to 1 representing forks
+    :param p_id: id of current philosopher
+    :param hand: determines whether the philosopher is left or right-handed
+    """
     print(f"{p_id} is trying to get forks")
     if hand == "right":
         forks[p_id].wait()
@@ -56,6 +134,23 @@ def get_forks(forks, p_id, hand):
 
 
 def put_forks(forks, p_id, hand):
+    """
+    Function simulating putting forks back on the table.
+
+    Parameters
+    ----------
+    forks: List of Semaphores initialized to 1 representing forks
+    p_id: id of current philosopher
+    hand: determines whether the philosopher is left or right-handed
+
+    Return value
+    ------------
+    None
+
+    :param forks: List of Semaphores initialized to 1 representing forks
+    :param p_id: id of current philosopher
+    :param hand: determines whether the philosopher is left or right-handed
+    """
     if hand == "right":
         forks[p_id].signal()
         forks[(p_id + 1) % PHILOSOPHERS].signal()
@@ -66,6 +161,9 @@ def put_forks(forks, p_id, hand):
 
 
 def main():
+    """
+    Main function where the other functions are called.
+    """
     forks = [Semaphore(1) for _ in range(PHILOSOPHERS)]
 
     create_philosophers(forks)
