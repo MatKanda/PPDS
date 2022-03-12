@@ -16,24 +16,14 @@ from random import randint
 PHILOSOPHERS = 5
 
 
-def philosopher_left(forks, p_id):
+def philosopher(forks, p_id, hand):
     sleep(randint(50, 100) / 1000)
 
     while True:
         think(p_id)
-        get_forks_left(forks, p_id)
+        get_forks(forks, p_id, hand)
         eat(p_id)
-        put_forks_left(forks, p_id)
-
-
-def philosopher_right(forks, p_id):
-    sleep(randint(50, 100) / 1000)
-
-    while True:
-        think(p_id)
-        get_forks_right(forks, p_id)
-        eat(p_id)
-        put_forks_right(forks, p_id)
+        put_forks(forks, p_id, hand)
 
 
 def think(p_id):
@@ -46,37 +36,32 @@ def eat(p_id):
     sleep(randint(30, 40) / 1000)
 
 
-def get_forks_right(forks, p_id):
+def get_forks(forks, p_id, hand):
     print(f"{p_id} is trying to get forks")
-    forks[p_id].wait()
-    forks[(p_id+1) % PHILOSOPHERS].wait()
+    if hand == "right":
+        forks[p_id].wait()
+        forks[(p_id+1) % PHILOSOPHERS].wait()
+    else:
+        forks[(p_id + 1) % PHILOSOPHERS].wait()
+        forks[p_id].wait()
     print(f"{p_id} has taken the forks")
 
 
-def put_forks_right(forks, p_id):
-    forks[p_id].signal()
-    forks[(p_id+1) % PHILOSOPHERS].signal()
-    print(f"{p_id} has put the forks")
-
-
-def get_forks_left(forks, p_id):
-    print(f"{p_id} is trying to get forks")
-    forks[(p_id+1) % PHILOSOPHERS].wait()
-    forks[p_id].wait()
-    print(f"{p_id} has taken the forks")
-
-
-def put_forks_left(forks, p_id):
-    forks[(p_id+1) % PHILOSOPHERS].signal()
-    forks[p_id].signal()
+def put_forks(forks, p_id, hand):
+    if hand == "right":
+        forks[p_id].signal()
+        forks[(p_id + 1) % PHILOSOPHERS].signal()
+    else:
+        forks[(p_id+1) % PHILOSOPHERS].signal()
+        forks[p_id].signal()
     print(f"{p_id} has put the forks")
 
 
 def main():
     forks = [Semaphore(1) for _ in range(PHILOSOPHERS)]
 
-    phils_l = [Thread(philosopher_left, forks, p_id) for p_id in range(2)]
-    phils_r = [Thread(philosopher_right, forks, p_id) for p_id in range(3)]
+    phils_l = [Thread(philosopher, forks, p_id, "left") for p_id in range(0, 2)]
+    phils_r = [Thread(philosopher, forks, p_id, "right") for p_id in range(2, 5)]
 
     for p in phils_l + phils_r:
         p.join()
