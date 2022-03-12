@@ -166,6 +166,40 @@ def sensor_p(sensor_id, turnstile, ls_sensor, valid_data, access_data):
         ls_sensor.unlock(access_data)
 
 
+def sensor_t(sensor_id, turnstile, ls_sensor, valid_data, access_data):
+    """
+    Function simulating the sensor "P" updating/rewriting some data
+
+    Parameters
+    ----------
+    sensor_id: id of the current sensor
+    valid_data: Event sync object
+    turnstile: Semaphore sync object
+    ls_sensor: LightSwitch class defined above
+    access_data:Semaphore sync object
+
+    :param sensor_id: id of the current sensor
+    :param valid_data: Event sync object
+    :param turnstile: Semaphore sync object
+    :param ls_sensor: LightSwitch class defined above
+    :param access_data:Semaphore sync object
+
+    Return value
+    ------------
+    None
+    """
+    while True:
+        sleep(randint(50, 60) / 1000)
+        turnstile.wait()
+        writing_sensors = ls_sensor.lock(access_data)
+        turnstile.signal()
+        write_time = randint(10, 20)/1000
+        print(f'cidlo "{sensor_id}": pocet_zapisujucich_cidiel={writing_sensors}, trvanie_zapisu={write_time}\n')
+        sleep(write_time)
+        valid_data[1].signal()
+        ls_sensor.unlock(access_data)
+
+
 def sensor_h(sensor_id, turnstile, ls_sensor, valid_data, access_data):
     """
     Function simulating the sensor "H" updating/rewriting some data
