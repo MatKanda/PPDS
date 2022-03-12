@@ -16,6 +16,14 @@ from random import randint
 PHILOSOPHERS = 5
 
 
+def create_philosophers(forks, left_handed):
+    phils_l = [Thread(philosopher, forks, p_id, "left") for p_id in range(0, left_handed)]
+    phils_r = [Thread(philosopher, forks, p_id, "right") for p_id in range(left_handed, PHILOSOPHERS)]
+
+    for p in phils_l + phils_r:
+        p.join()
+
+
 def philosopher(forks, p_id, hand):
     sleep(randint(50, 100) / 1000)
 
@@ -60,11 +68,10 @@ def put_forks(forks, p_id, hand):
 def main():
     forks = [Semaphore(1) for _ in range(PHILOSOPHERS)]
 
-    phils_l = [Thread(philosopher, forks, p_id, "left") for p_id in range(0, 2)]
-    phils_r = [Thread(philosopher, forks, p_id, "right") for p_id in range(2, 5)]
+    # random number of left-handed philosophers, at least 1, max all-1
+    left_handed = randint(1, PHILOSOPHERS-1)
 
-    for p in phils_l + phils_r:
-        p.join()
+    create_philosophers(forks, left_handed)
 
 
 if __name__ == "__main__":
