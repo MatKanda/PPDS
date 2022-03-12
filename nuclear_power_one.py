@@ -115,6 +115,8 @@ def monitor(monitor_id, valid_data, turnstile, ls_monitor, access_data):
     ------------
     None
     """
+
+    # wait for the data to be written before start monitoring
     valid_data.wait()
 
     while True:
