@@ -168,7 +168,7 @@ def sensor_p(sensor_id, turnstile, ls_sensor, valid_data, access_data):
 
 def sensor_t(sensor_id, turnstile, ls_sensor, valid_data, access_data):
     """
-    Function simulating the sensor "P" updating/rewriting some data
+    Function simulating the sensor "T" updating/rewriting some data
 
     Parameters
     ----------
