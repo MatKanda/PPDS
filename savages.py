@@ -22,8 +22,10 @@ N = 3
 
 class SimpleBarrier:
     """
-    Mr. Jokay barrier implementation for special
-    prints in "wait()" method.
+    Mr. Jokay SimpleBarrier implementation for special prints
+    in "wait()" method.
+    Class used to wait for all threads and then to release them
+    all at the same time.
     """
 
     def __init__(self, n):
@@ -47,12 +49,9 @@ class SimpleBarrier:
 
 
 class Shared:
-    """V tomto pripade musime pouzit zdielanu strukturu.
-    Kedze Python struktury nema, pouzijeme triedu bez vlastnych metod.
-    Preco musime pouzit strukturu? Lebo chceme zdielat hodnotu
-    pocitadla servings, a to jednoduchsie v Pythone asi neurobime.
-    Okrem toho je rozumne mat vsetky synchronizacne objekty spolu.
-    Pri zmene nemusime upravovat API kazdej funkcie zvlast.
+    """
+    Object shared between Threads containing Mutex, counter and
+    Semaphores and SimpleBarrier objects.
     """
 
     def __init__(self):
@@ -66,9 +65,19 @@ class Shared:
 
 def get_serving_from_pot(savage_id, shared):
     """
-    Pristupujeme ku zdielanej premennej.
-    Funkcia je volana pri zamknutom mutexe, preto netreba
-    riesit serializaciu v ramci samotnej funkcie.
+    Function simulating getting a serving from shared pot.
+
+    Parameters
+    ----------
+    savage_id: id of savage currently taking a serving
+    shared: shared sync object used to access common data
+
+    Return value
+    ------------
+    None
+
+    :param savage_id: id of savage currently taking a serving
+    :param shared: shared sync object used to access common data
     """
 
     print("divoch %2d: beriem si porciu" % savage_id)
@@ -76,19 +85,45 @@ def get_serving_from_pot(savage_id, shared):
 
 
 def eat(savage_id):
+    """
+    Function simulating eating.
+
+    Parameters
+    ----------
+    savage_id: id of savage currently taking a serving
+
+    Return value
+    ------------
+    None
+
+    :param savage_id: id of savage currently taking a serving
+    """
     print("divoch %2d: hodujem" % savage_id)
-    # Zjedenie porcie misionara nieco trva...
+    # process of eating
     sleep(0.2 + randint(0, 3) / 10)
 
 
 def savage(savage_id, shared):
-    while True:
-        """Pred kazdou hostinou sa divosi musia pockat.
-        Kedze mame kod vlakna (divocha) v cykle, musime pouzit dve
-        jednoduche bariery za sebou alebo jednu zlozenu, ale kvoli
-        prehladnosti vypisov sme sa rozhodli pre toto riesenie.
-        """
+    """
+    Function simulating savages eating from the pot.
+    The "if" part is checking whether the pot is empty or not
+    and call the cook to cook another full pot if needed.
 
+    Parameters
+    ----------
+    savage_id: id of savage currently taking a serving
+    shared: shared sync object used to access common data
+
+    Return value
+    ------------
+    None
+
+    :param savage_id: id of savage currently taking a serving
+    :param shared: shared sync object used to access common data
+    """
+    while True:
+        # Before every start of dinner, they have to wait for all
+        # savages to come. That's why we use barrier here.
         shared.barrier1.wait(
             "divoch %2d: prisiel som na veceru, uz nas je %2d",
             savage_id,
@@ -97,7 +132,6 @@ def savage(savage_id, shared):
                              savage_id,
                              print_last_thread=True)
 
-        # Nasleduje klasicke riesenie problemu hodujucich divochov.
         shared.mutex.lock()
         print("divoch %2d: pocet zostavajucich porcii v hrnci je %2d" %
               (savage_id, shared.servings))
@@ -112,24 +146,43 @@ def savage(savage_id, shared):
 
 
 def put_servings_in_pot(m, shared):
-    """M je pocet porcii, ktore vklada kuchar do hrnca.
-    Hrniec je reprezentovany zdielanou premennou servings.
-    Ta udrziava informaciu o tom, kolko porcii je v hrnci k dispozicii.
+    """
+    Function simulating putting servings into to pot.
+
+    Parameters
+    ----------
+    m: number of portions to cook
+    shared: shared sync object used to access common data
+
+    Return value
+    ------------
+    None
+
+    :param m: number of portions to cook
+    :param shared: shared sync object used to access common data
     """
 
     print("kuchar: varim")
-    # navarenie jedla tiez cosi trva...
+    # cooking the meal
     sleep(0.4 + randint(0, 2) / 10)
     shared.servings += m
 
 
 def cook(m, shared):
-    """Na strane kuchara netreba robit ziadne modifikacie kodu.
-    Riesenie je standardne podla prednasky.
-    Navyse je iba argument M, ktorym explicitne hovorime, kolko porcii
-    ktory kuchar vari.
-    Kedze v nasom modeli mame iba jedneho kuchara, ten navari vsetky
-    potrebne porcie a vlozi ich do hrnca.
+    """
+    Function simulating cooking another pot of meal.
+
+    Parameters
+    ----------
+    m: number of portions to cook
+    shared: shared sync object used to access common data
+
+    Return value
+    ------------
+    None
+
+    :param m: number of portions to cook
+    :param shared: shared sync object used to access common data
     """
 
     while True:
@@ -139,7 +192,21 @@ def cook(m, shared):
 
 
 def init_and_run(n, m):
-    """Spustenie modelu"""
+    """
+    Function to run a code which is being called from main.
+
+    Parameters
+    ----------
+    n: number of savages
+    m: number of food servings
+
+    Return value
+    ------------
+    None
+
+    :param n: number of savages
+    :param m: number of food servings
+    """
     threads = list()
     shared = Shared()
     for savage_id in range(0, n):
