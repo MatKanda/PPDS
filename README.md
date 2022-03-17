@@ -35,19 +35,56 @@ did the cooking. This might mean that they are waiting in front.
 But what confuses me is that the barrier is outside the function call
 (```line 218```) so all the threads should be released at once and
 all of them should go into the function call on the line ```222```.
-I added separate mutex for cooks so multiple threads doesn't increment
-```serving``` variable at the same time more times than required.
+\
+\
+After approximately 20th "mind" executing the code I found out,
+that I was passing the ```empty_pot()``` signal without the value.
+So I edited it to```signal(number_of_cooks)``` and It solved my problem
+I was describing above. Then I created ```Shared``` class method
+```add_serving()```, where I'm incrementing servings one by one
+and checking whether the pot is full or not. The thread which fills
+the last serving into the pot then call ```signal()``` for the
+```full_pot()``` so the savages can start eating. I've tested the solution
+for both situations. First one is where the servings>cooks and
+cooks>servings as well. The example outputs are shown under the
+pseudocode.
 
 ## Pseudocode of edited functions
 ```
+M - number of food portions which fits into the pot
+N - number of savages
+C - number of cooks
+
+class Shared():
+    ...
+    ...
+    def add_serving(self):
+        self.mutex_cooks.lock()
+        self.servings += 1
+        if self.servings == M:
+            self.full_pot.signal()
+        self.mutex_cooks.unlock()
+    ...
+    ...
+    
+def savage(savage_id, shared):
+    while True:
+        ...
+        ...
+        if shared.servings == 0:
+            print(output)
+            shared.empty_pot.signal(C)
+            shared.full_pot.wait()
+        ...
+        ...
+
+    
 def put_servings_in_pot(m, cook_id, shared):
-for loop:
-    mutex.lock()
-    print(some kind of output)
-    # cooking the meal
-    sleep()
-    shared.servings += 1
-    mutex.unlock()
+     while True:
+        shared.add_serving()
+        print(output)
+        # cooking the meal
+        sleep(some time for simulation)
     
 
 def cook(m, cook_id, shared):
@@ -57,6 +94,15 @@ def cook(m, cook_id, shared):
         put_servings_in_pot(m, cook_id, shared)
         shared.full_pot.signal()
 ```
+
+# Example outputs of running program
+Number of cooks(3) is higher than number of servings(2).
+
+![Example 1](img/img_2.png)
+
+Number of servings(4) is higher than number of cooks(3).
+
+![Example 2](img/img_3.png)
 
 **License: MIT\
 Author: Matúš Kanda\
