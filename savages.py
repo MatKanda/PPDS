@@ -17,9 +17,9 @@ M - number of food portions which fits into the pot
 N - number of savages
 C - number of cooks
 """
-M = 2
+M = 3
 N = 3
-C = 3
+C = 5
 
 
 class SimpleBarrier:
@@ -85,6 +85,9 @@ class Shared:
         if self.servings == M and self.counter == C:
             self.counter = 0
             self.full_pot.signal()
+        # if self.counter == C and (C < M):
+        #     self.empty_pot.signal(M - C)
+        #     self.full_pot.signal()
         self.mutex_cooks.unlock()
 
 
@@ -215,9 +218,11 @@ def cook(m, cook_id, shared):
 
     shared.cook_barrier.wait("kuchar %2d: caka na ostatnych kucharov,"
                              " je nas %2d", cook_id, print_each_thread=True)
+
     while True:
         shared.empty_pot.wait()
         put_servings_in_pot(m, cook_id, shared)
+        shared.full_pot.signal()
 
 
 def init_and_run(n, m, c):
