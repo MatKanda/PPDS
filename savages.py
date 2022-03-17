@@ -69,19 +69,12 @@ class Shared:
         self.counter = 0
         self.portions = 0
 
-    def lock(self, room):
-        self.mutex.lock()
-        if not self.counter:
-            room.wait()
-        self.counter += 1
-        self.mutex.unlock()
-
-    def unlock(self, room):
-        self.mutex.lock()
-        self.counter -= 1
-        if not self.counter:
-            room.signal()
-        self.mutex.unlock()
+    def add_serving(self):
+        self.mutex_cooks.lock()
+        self.servings += 1
+        if self.servings == M:
+            self.full_pot.signal()
+        self.mutex_cooks.unlock()
 
 
 def get_serving_from_pot(savage_id, shared):
@@ -158,7 +151,7 @@ def savage(savage_id, shared):
               (savage_id, shared.servings))
         if shared.servings == 0:
             print("divoch %2d: budim kuchara" % savage_id)
-            shared.empty_pot.signal()
+            shared.empty_pot.signal(C)
             shared.full_pot.wait()
         get_serving_from_pot(savage_id, shared)
         shared.mutex.unlock()
@@ -184,16 +177,11 @@ def put_servings_in_pot(m, cook_id, shared):
     :param cook_id: id of current cook
     :param shared: shared sync object used to access common data
     """
-
-    for i in range(m):
-        # shared.turnstile.wait()
-        # shared.turnstile.signal()
-        shared.mutex_cooks.lock()
-        print(f"kuchar {cook_id}: varim {i+1}. porciu")
+    while True:
+        shared.add_serving()
+        print(f"kuchar {cook_id}: varim 1 porciu")
         # cooking the meal
-        # sleep(0.4 + randint(0, 2) / 10)
-        shared.servings += 1
-        shared.mutex_cooks.unlock()
+        sleep(0.4 + randint(0, 2) / 10)
 
 
 def cook(m, cook_id, shared):
