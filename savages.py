@@ -70,6 +70,10 @@ class Shared:
         self.portions = 0
 
     def add_serving(self):
+        """
+        Method used to increment number of servings. Last Thread which fills entire
+        pot sends signal to the savages, so they can start eating.
+        """
         self.mutex_cooks.lock()
         self.servings += 1
         if self.servings == M:
