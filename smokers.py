@@ -14,6 +14,10 @@ from fei.ppds import Thread, Semaphore, Mutex, print
 
 
 class Shared(object):
+    """
+    Object shared between Threads containing Mutex, counters and
+    Semaphores representing resources availability.
+    """
     def __init__(self):
         self.tobacco = Semaphore(0)
         self.paper = Semaphore(0)
