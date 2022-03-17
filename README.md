@@ -96,9 +96,9 @@ def cook(m, cook_id, shared):
 ```
 
 # Example outputs of running program
-Number of cooks(3) is higher than number of servings(2).
+Number of cooks(5) is higher than number of servings(3).
 
-![Example 1](img/img_2.png)
+![Example 1](img/img_CCC.png)
 
 Number of servings(4) is higher than number of cooks(3).
 
