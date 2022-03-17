@@ -76,14 +76,14 @@ class Shared:
         pot sends signal to the savages, so they can start eating.
         """
         self.mutex_cooks.lock()
-        if self.servings < M and self.to_cook is True:
-            # self.turnstile.signal()
+        self.counter += 1
+        if self.servings < M:
             self.servings += 1
             print(f"kuchar {cook_id}: varim 1 porciu")
         else:
-            self.to_cook = False
             print(f"kuchar {cook_id}: nevarim, je plny hrniec")
-        if self.servings == M:
+        if self.servings == M and self.counter == C:
+            self.counter = 0
             self.full_pot.signal()
         self.mutex_cooks.unlock()
 
@@ -159,13 +159,12 @@ def savage(savage_id, shared):
         shared.mutex.lock()
         print("divoch %2d: pocet zostavajucich porcii v hrnci je %2d" %
               (savage_id, shared.servings))
-        shared.to_cook = False
         if shared.servings == 0:
             print("divoch %2d: budim kuchara" % savage_id)
             shared.to_cook = True
             shared.empty_pot.signal(C)
             shared.full_pot.wait()
-            shared.to_cook = False
+        # shared.to_cook = False
         get_serving_from_pot(savage_id, shared)
         shared.mutex.unlock()
 
@@ -190,11 +189,9 @@ def put_servings_in_pot(m, cook_id, shared):
     :param cook_id: id of current cook
     :param shared: shared sync object used to access common data
     """
-    for i in range(0, m):
-        # shared.turnstile.wait()
-        shared.add_serving(cook_id)
-        # cooking the meal
-        sleep(0.4 + randint(0, 2) / 10)
+    shared.add_serving(cook_id)
+    # cooking the meal
+    sleep(0.4 + randint(0, 2) / 10)
 
 
 def cook(m, cook_id, shared):
@@ -221,7 +218,6 @@ def cook(m, cook_id, shared):
     while True:
         shared.empty_pot.wait()
         put_servings_in_pot(m, cook_id, shared)
-        shared.full_pot.signal()
 
 
 def init_and_run(n, m, c):
