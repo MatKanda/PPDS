@@ -15,9 +15,11 @@ from time import sleep
 M and N -> model parameters
 M - number of food portions which fits into the pot
 N - number of savages
+C - number of cooks
 """
 M = 2
 N = 3
+C = 3
 
 
 class SimpleBarrier:
@@ -56,11 +58,30 @@ class Shared:
 
     def __init__(self):
         self.mutex = Mutex()
+        self.mutex_cooks = Mutex()
         self.servings = 0
         self.full_pot = Semaphore(0)
         self.empty_pot = Semaphore(0)
         self.barrier1 = SimpleBarrier(N)
         self.barrier2 = SimpleBarrier(N)
+        self.cook_barrier = SimpleBarrier(C)
+        self.turnstile = Semaphore(1)
+        self.counter = 0
+        self.portions = 0
+
+    def lock(self, room):
+        self.mutex.lock()
+        if not self.counter:
+            room.wait()
+        self.counter += 1
+        self.mutex.unlock()
+
+    def unlock(self, room):
+        self.mutex.lock()
+        self.counter -= 1
+        if not self.counter:
+            room.signal()
+        self.mutex.unlock()
 
 
 def get_serving_from_pot(savage_id, shared):
@@ -145,13 +166,14 @@ def savage(savage_id, shared):
         eat(savage_id)
 
 
-def put_servings_in_pot(m, shared):
+def put_servings_in_pot(m, cook_id, shared):
     """
     Function simulating putting servings into to pot.
 
     Parameters
     ----------
     m: number of portions to cook
+    cook_id: id of current cook
     shared: shared sync object used to access common data
 
     Return value
@@ -159,22 +181,29 @@ def put_servings_in_pot(m, shared):
     None
 
     :param m: number of portions to cook
+    :param cook_id: id of current cook
     :param shared: shared sync object used to access common data
     """
 
-    print("kuchar: varim")
-    # cooking the meal
-    sleep(0.4 + randint(0, 2) / 10)
-    shared.servings += m
+    for i in range(m):
+        # shared.turnstile.wait()
+        # shared.turnstile.signal()
+        shared.mutex_cooks.lock()
+        print(f"kuchar {cook_id}: varim {i+1}. porciu")
+        # cooking the meal
+        # sleep(0.4 + randint(0, 2) / 10)
+        shared.servings += 1
+        shared.mutex_cooks.unlock()
 
 
-def cook(m, shared):
+def cook(m, cook_id, shared):
     """
     Function simulating cooking another pot of meal.
 
     Parameters
     ----------
     m: number of portions to cook
+    cook_id: id of current cook
     shared: shared sync object used to access common data
 
     Return value
@@ -182,16 +211,19 @@ def cook(m, shared):
     None
 
     :param m: number of portions to cook
+    :param cook_id: id of current cook
     :param shared: shared sync object used to access common data
     """
 
+    shared.cook_barrier.wait("kuchar %2d: caka na ostatnych kucharov,"
+                             " je nas %2d", cook_id, print_each_thread=True)
     while True:
         shared.empty_pot.wait()
-        put_servings_in_pot(m, shared)
+        put_servings_in_pot(m, cook_id, shared)
         shared.full_pot.signal()
 
 
-def init_and_run(n, m):
+def init_and_run(n, m, c):
     """
     Function to run a code which is being called from main.
 
@@ -199,6 +231,7 @@ def init_and_run(n, m):
     ----------
     n: number of savages
     m: number of food servings
+    c: number of cooks
 
     Return value
     ------------
@@ -206,16 +239,19 @@ def init_and_run(n, m):
 
     :param n: number of savages
     :param m: number of food servings
+    :param c: number of cooks
     """
     threads = list()
     shared = Shared()
+    room = Semaphore(1)
     for savage_id in range(0, n):
         threads.append(Thread(savage, savage_id, shared))
-    threads.append(Thread(cook, m, shared))
+    for cook_id in range(0, c):
+        threads.append(Thread(cook, m, cook_id, shared))
 
     for t in threads:
         t.join()
 
 
 if __name__ == "__main__":
-    init_and_run(N, M)
+    init_and_run(N, M, C)
