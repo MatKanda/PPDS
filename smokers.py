@@ -87,14 +87,23 @@ def pusher_match(shared):
         shared.match.wait()
 
         shared.mutex.lock()
-        if shared.isTobacco:
-            shared.isTobacco -= 1
-            shared.pusherPaper.signal()
-        elif shared.isPaper:
-            shared.isPaper -= 1
-            shared.pusherTobacco.signal()
+        if shared.isTobacco and shared.isPaper:
+            tmp = randint(0, 1)
+            if tmp == 0:
+                shared.isTobacco -= 1
+                shared.pusherPaper.signal()
+            else:
+                shared.isPaper -= 1
+                shared.pusherTobacco.signal()
         else:
-            shared.isMatch += 1
+            if shared.isTobacco:
+                shared.isTobacco -= 1
+                shared.pusherPaper.signal()
+            elif shared.isPaper:
+                shared.isPaper -= 1
+                shared.pusherTobacco.signal()
+            else:
+                shared.isMatch += 1
         shared.mutex.unlock()
 
 
@@ -103,14 +112,23 @@ def pusher_paper(shared):
         shared.paper.wait()
 
         shared.mutex.lock()
-        if shared.isTobacco:
-            shared.isTobacco -= 1
-            shared.pusherMatch.signal()
-        elif shared.isMatch:
-            shared.isMatch -= 1
-            shared.pusherTobacco.signal()
+        if shared.isTobacco and shared.isMatch:
+            tmp = randint(0, 1)
+            if tmp == 0:
+                shared.isTobacco -= 1
+                shared.pusherMatch.signal()
+            else:
+                shared.isMatch -= 1
+                shared.pusherTobacco.signal()
         else:
-            shared.isPaper += 1
+            if shared.isTobacco:
+                shared.isTobacco -= 1
+                shared.pusherMatch.signal()
+            elif shared.isMatch:
+                shared.isMatch -= 1
+                shared.pusherTobacco.signal()
+            else:
+                shared.isPaper += 1
         shared.mutex.unlock()
 
 
@@ -119,14 +137,23 @@ def pusher_tobacco(shared):
         shared.tobacco.wait()
 
         shared.mutex.lock()
-        if shared.isPaper:
-            shared.isPaper -= 1
-            shared.pusherMatch.signal()
-        elif shared.isMatch:
-            shared.isMatch -= 1
-            shared.pusherPaper.signal()
+        if shared.isPaper and shared.isMatch:
+            tmp = randint(0, 1)
+            if tmp == 0:
+                shared.isPaper -= 1
+                shared.pusherMatch.signal()
+            else:
+                shared.isMatch -= 1
+                shared.pusherPaper.signal()
         else:
-            shared.isTobacco += 1
+            if shared.isPaper:
+                shared.isPaper -= 1
+                shared.pusherMatch.signal()
+            elif shared.isMatch:
+                shared.isMatch -= 1
+                shared.pusherPaper.signal()
+            else:
+                shared.isTobacco += 1
         shared.mutex.unlock()
 
 
