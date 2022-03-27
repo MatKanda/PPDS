@@ -29,8 +29,14 @@ class Barrier:
 
     def wait(self, sem):
         """
-        Wait method of SimpleBarrier class used to count threads and increment/decrement counter
+        Wait method of Barrier class used to count threads and increment/decrement counter
         in purpose to release waiting threads.
+
+        Parameters
+        ----------
+        sem: Semaphore Object, last thread calls signal on it
+
+        :param sem: Semaphore Object, last thread calls signal on it
         Return value
         ------------
         None
@@ -40,6 +46,23 @@ class Barrier:
         if self.counter == self. n:
             self.counter = 0
             sem.signal()
+            self.event.set()
+        self.mutex.unlock()
+        self.event.wait()
+
+    def wait_2_0(self):
+        """
+        Wait method of Barrier class used to count threads and increment/decrement counter
+        in purpose to release waiting threads. Same as above just without Semaphore Object.
+
+        Return value
+        ------------
+        None
+        """
+        self.mutex.lock()
+        self.counter += 1
+        if self.counter == self. n:
+            self.counter = 0
             self.event.set()
         self.mutex.unlock()
         self.event.wait()
