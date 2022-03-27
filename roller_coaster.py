@@ -14,32 +14,38 @@ def unboard(passenger_name):
     sleep(randint(1, 2))
 
 
-def load():
-    print("Train is loading passengers...")
+def load(train_id):
+    print(f"Train {train_id} is loading passengers...")
     sleep(randint(1, 2))
 
 
-def unload():
-    print("Train is unloading passengers...")
+def unload(train_id):
+    print(f"Train {train_id} is unloading passengers...")
     sleep(randint(1, 2))
 
 
-def run():
-    print("Train is on its way...")
+def run(train_id):
+    print(f"Train {train_id} is on its way...")
     sleep(3)
 
 
-def train(board_q, boarded, unboard_q, unboarded, c):
+def next_id(id, number_of_trains):
+    return (id + 1) % number_of_trains
+
+
+def train(board_q, boarded, unboard_q, unboarded, loading_area, unloading_area, train_id, passengers, trains):
     while True:
-        load()
-        board_q.signal(c)
+        loading_area[train_id].wait()
+        load(train_id)
+        board_q.signal(passengers)
         boarded.wait()
-
-        run()
-
-        unload()
-        unboard_q.signal(c)
+        loading_area[next_id(train_id, trains)].signal()
+        run(train_id)
+        unloading_area[train_id].wait()
+        unload(train_id)
+        unboard_q.signal(passengers)
         unboarded.wait()
+        unloading_area[next_id(train_id, trains)].signal()
 
 
 def passenger(board_q, board_b, boarded, unboard_q, unboard_b, unboarded, passenger_name):
@@ -55,7 +61,14 @@ def passenger(board_q, board_b, boarded, unboard_q, unboard_b, unboarded, passen
 
 def init():
     # number of passengers
-    c = 5
+    c = 10
+    # number of trains
+    t = 3
+
+    loading_area = [Semaphore(0) for i in range(t)]
+    unloading_area = [Semaphore(0) for i in range(t)]
+    loading_area[0].signal()
+    unloading_area[0].signal()
 
     board_queue = Semaphore(0)
     board_barrier = Barrier(c)
@@ -67,7 +80,8 @@ def init():
     passengers = [Thread(passenger, board_queue, board_barrier, boarded, unboard_queue, unboard_barrier, unboarded, i+1)
                   for i in range(c)]
 
-    trains = [Thread(train, board_queue, boarded, unboard_queue, unboarded, c)]
+    trains = [Thread(train, board_queue, boarded, unboard_queue, unboarded, loading_area, unloading_area, i, c, t)
+              for i in range(t)]
 
     [t.join() for t in passengers + trains]
 
