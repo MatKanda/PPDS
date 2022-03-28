@@ -126,7 +126,7 @@ def next_id(id, number_of_trains):
 
 def train(board_q, boarded, unboard_q, unboarded, loading_area, unloading_area, train_id, passengers, trains):
     """
-    Function simulating all activities done by train.
+    Function simulating all activities done by train e.g. un/loading the passengers.
 
     Parameters
     ----------
@@ -156,7 +156,7 @@ def train(board_q, boarded, unboard_q, unboarded, loading_area, unloading_area, 
 
 def passenger(board_q, board_b, boarded, unboard_q, unboard_b, unboarded, passenger_name):
     """
-    Function simulating all activities done by train.
+    Function simulating boarding and unboarding the passenger on the train.
 
     Parameters
     ----------
