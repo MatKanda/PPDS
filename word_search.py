@@ -17,7 +17,7 @@ def grep(str, next_fnc):
         next_fnc.close()
 
 
-def wc():
+def wc(str):
     cnt = 0
     try:
         while True:
@@ -26,8 +26,28 @@ def wc():
         print(cnt)
 
 
+def dispatch(greps):
+    """
+    """
+    try:
+        while True:
+            line = (yield)
+            for grep in greps:
+                grep.send(line)
+    except GeneratorExit:
+        for grep in greps:
+            grep.close()
+
+
 if __name__ == "__main__":
     f = open("file.txt")
-    w = wc()
-    g = grep("a", w)
-    cat(f, g)
+    substrings = ["a", "b", "y", "t"]
+    greps = []
+    for substring in substrings:
+        w = wc(substring)
+        g = grep(substring, w)
+        greps.append(g)
+
+    d = dispatch(greps)
+    next(d)
+    cat(f, d)
