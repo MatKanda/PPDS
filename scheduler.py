@@ -1,4 +1,5 @@
 """
+Simple first try of couroutines implementation.
 
 Authour: Matúš Kanda
 License: MIT
