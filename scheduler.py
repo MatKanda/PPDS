@@ -3,10 +3,22 @@
 Authour: Matúš Kanda
 License: MIT
 """
-from time import sleep
 
 
 def sending(data, s, w):
+    """
+    Function used to send data to waiting couroutines.
+
+    Parameters
+    ----------
+    data: array of words
+    s: another couroutine
+    w: another couroutine
+
+    :param data: array of words
+    :param s: another couroutine
+    :param w: another couroutine
+    """
     next(s)
     next(w)
     for d in data:
@@ -19,6 +31,17 @@ def sending(data, s, w):
 
 
 def receiving(w):
+    """
+    Function used to receive data from oen couroutine
+    and forward them to another couroutine.
+
+    Parameters
+    ----------
+    w: another couroutine
+
+    :param w: another couroutine
+
+    """
     try:
         while True:
             print("Waiting for data...")
@@ -30,6 +53,9 @@ def receiving(w):
 
 
 def working():
+    """
+    End function colleting the data and simulating some work with it.
+    """
     try:
         while True:
             print("Trying to work...")
@@ -40,10 +66,19 @@ def working():
 
 
 def scheduler(data):
+    """
+    Scheduler used to schedule next process, in this case one by one in loop.
+
+    Parameters
+    ----------
+    data: array of words
+
+    :param data: array of words
+    """
     while True:
         w = working()
         s = receiving(w)
-        f = sending(data, s, w)
+        sending(data, s, w)
 
 
 if __name__ == "__main__":

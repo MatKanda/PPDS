@@ -72,11 +72,15 @@ def wc(str):
 
 def dispatch(greps):
     """
-    Koprogram, ktory caka na pocet vyskytov podretazca v riadku.
+    Couroutine waiting for number of substring occurrences.
+    Incrementing count and ending the execution after GeneratorExit
+    exception.
 
-    Akonahle dostane pocet, pripocitava ho k celkovemu vysledku.
-    Po obdrzani vynimky GeneratorExit cinnost koprogramu konci
-    vypisom vysledku na obrazovku.
+    Parameters
+    ----------
+    greps: array of words to search
+
+    :param greps: array of words to search
     """
     try:
         while True:
