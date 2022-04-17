@@ -25,6 +25,11 @@ def player(name, seat):
     """
     Function representing player picking a card and putting it on the table.
 
+    Parameters
+    ----------
+    name: name of the player
+    seat: his seat at the table
+
     :param name: name of the player
     :param seat: his seat at the table
     """
