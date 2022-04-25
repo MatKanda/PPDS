@@ -12,6 +12,11 @@ gave me this result:
 
 ![alt text](result.png)
 
+and the Path is set as well
+
+![alt text](path.png)
+
+
 So I was rly trying to find some solution but there was not many helpful articles
 on the Internet. \
 So I'm sorry to say this but...
